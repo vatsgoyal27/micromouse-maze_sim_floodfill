@@ -51,7 +51,39 @@ def check_sensors():
             sensor_reading[2] = 1
         if 'e' in grid[my_mouse.mouse_pos[0]][my_mouse.mouse_pos[1]][2]:
             sensor_reading[0] = 1
-    return sensor_reading
+    return sensor_reading_to_walls(sensor_reading, direc)
+
+def sensor_reading_to_walls(sensor_reading, direc):
+    walls = ""
+    if direc == 90:
+        if sensor_reading[0] == 1:
+            walls += "w"
+        if sensor_reading[1] == 1:
+            walls += "n"
+        if sensor_reading[2] == 1:
+            walls += "e"
+    if direc == 0:
+        if sensor_reading[0] == 1:
+            walls += "n"
+        if sensor_reading[1] == 1:
+            walls += "e"
+        if sensor_reading[2] == 1:
+            walls += "s"
+    if direc == 180:
+        if sensor_reading[0] == 1:
+            walls += "s"
+        if sensor_reading[1] == 1:
+            walls += "w"
+        if sensor_reading[2] == 1:
+            walls += "n"
+    if direc == 270:
+        if sensor_reading[0] == 1:
+            walls += "e"
+        if sensor_reading[1] == 1:
+            walls += "s"
+        if sensor_reading[2] == 1:
+            walls += "w"
+    return walls
 
 def win(pos_array):
     if pos_array == win_cell:
@@ -64,7 +96,7 @@ def win(pos_array):
 while not win(my_mouse.mouse_pos):
     #time.sleep(1)
     cx, cy = my_mouse.mouse_pos[0], my_mouse.mouse_pos[1]
-    ff.update_grid(my_mouse.mouse_pos, grid[cx][cy][2])
+    ff.update_grid(my_mouse.mouse_pos, check_sensors())
     next_move = ff.get_next_cell(my_mouse.mouse_pos)
     #print(next_move)
     my_mouse.move_actual(next_move)
