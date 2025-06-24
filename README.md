@@ -72,6 +72,6 @@ micromouse-maze_sim_floodfill/
 - Add support for multiple goal cells (like 4 center cells)
 - Allow user to draw maze manually with clicks
 - Add wall sensors with more accurate detection range
-- Implement A* or DFS/BFS alternative pathfinding
+- Implement BFS pathfinding for initial run to explore all the cells and find shortest path
 
 ---
