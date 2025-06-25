@@ -70,5 +70,6 @@ micromouse-maze_sim_floodfill/
 ## To-Do 
 
 - Allow user to draw maze manually with clicks
+- Algorithm to recognise straights and diagonals
 
 ---
