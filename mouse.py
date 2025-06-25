@@ -11,15 +11,11 @@ class Mouse():
         self.mouse.setheading(90)
         #self.mouse.shapesize(0.5, 0.5)
         self.mouse.hideturtle()
+        self.mouse.penup()
         self.mouse.goto(30, 30)
+        self.mouse.pendown()
         self.mouse.showturtle()
         self.mouse.speed(6)
-
-    def move_to(self, position: tuple):
-        x, y, c = position
-        self.mouse.pendown()
-        self.mouse.goto(x, y)
-        self.mouse.penup()
 
     def draw_grid(self):
         self.mouse.hideturtle()
@@ -110,16 +106,10 @@ class Mouse():
         return self.mouse.heading()
 
     def reset(self):
-        self.mouse.hideturtle()
-        self.mouse.speed(0)
-        self.mouse.penup()
-        self.mouse.goto(30, 30)
         self.mouse_pos = [17, 0]
-        self.mouse.showturtle()
-        self.mouse.speed(6)
         self.mouse.setheading(90)
         self.mouse.pencolor('blue')
-        self.mouse.pendown()
+        self.mouse.width(6)
 
     def move_actual(self, to):
         nx, ny = to[0], to[1]
