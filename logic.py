@@ -1,6 +1,6 @@
 
 class FloodFillMap:
-    def __init__(self, grid, goal_cell):
+    def __init__(self, grid, goal_cells):
         self.grid = []
         for r in range(18):
             row = []
@@ -19,18 +19,21 @@ class FloodFillMap:
             self.grid.append(row)
 
         #print(self.grid)
-        self.goal = goal_cell  # (row, col)
+        self.goal = goal_cells
         self.cost_map = [[255 for _ in range(18)] for _ in range(18)]
         self.generate_cost_map()
+        self.explored = [[False for _ in range(18)] for _ in range(18)]
 
 
     def generate_cost_map(self):
 
-        goal_r, goal_c = self.goal
         self.cost_map = [[255 for _ in range(18)] for _ in range(18)]
-        self.cost_map[goal_r][goal_c] = 0
 
-        queue = [(goal_r, goal_c)]
+        queue = []
+        for goal_cell in self.goal:
+            r, c = goal_cell
+            self.cost_map[r][c] = 0
+            queue.append([r, c])
 
         while queue:
             r, c = queue.pop(0)  # Pop from front for BFS
@@ -53,10 +56,19 @@ class FloodFillMap:
                             queue.append((nr, nc))
         #self.print_map()
 
+    def mark_explored(self, r, c):
+        if 0 <= r < 18 and 0 <= c < 18:
+            self.explored[r][c] = True
+
     def update_grid(self, cell_pos, walls):
         r, c = cell_pos
+        self.mark_explored(r, c)
         x, y, _ = self.grid[r][c]
-        self.grid[r][c] = (x, y, walls)
+        existing_walls = self.grid[r][c][2]
+        for w in walls:
+            if w not in existing_walls:
+                existing_walls += w
+        self.grid[r][c] = (x, y, existing_walls)
 
         # Add opposite wall to neighbors manually
         if 'n' in walls and r > 0:
@@ -106,6 +118,32 @@ class FloodFillMap:
                         next_cell = [nr, nc]
         #print(next_cell)
         return next_cell
+
+    def get_next_cell_actual(self, current_pos):
+        r, c = current_pos[0], current_pos[1]
+        current_cost = self.cost_map[r][c]
+
+        directions = {
+            'n': (-1, 0),
+            's': (1, 0),
+            'e': (0, 1),
+            'w': (0, -1)
+        }
+
+        lowest_cost = current_cost
+        next_cell = [r, c]  # Default to current cell
+
+        for direction, (dr, dc) in directions.items():
+            if direction not in self.grid[r][c][2]:  # No wall in this direction
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < 18 and 0 <= nc < 18:
+                    neighbor_cost = self.cost_map[nr][nc]
+                    if neighbor_cost < lowest_cost:
+                        lowest_cost = neighbor_cost
+                        next_cell = [nr, nc]
+
+        is_explored = self.explored[r][c]  # Status of current cell
+        return next_cell, is_explored
 
     def print_map(self):
         for row in self.cost_map:

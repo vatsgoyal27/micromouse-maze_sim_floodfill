@@ -16,8 +16,8 @@ grid_mouse.delete()
 screen.update()
 tracer(1)
 
-win_cell = [0, 17]
-ff = FloodFillMap(grid, win_cell)
+win_cells = [[8, 9],[9, 8], [9, 9], [8, 8]]
+ff = FloodFillMap(grid, win_cells)
 
 def check_sensors():
     # returns a vector [l, f, r] of simulated sensor readings
@@ -86,7 +86,7 @@ def sensor_reading_to_walls(sensor_reading, direc):
     return walls
 
 def win(pos_array):
-    if pos_array == win_cell:
+    if pos_array in win_cells:
         return True
     else:
         return False
@@ -94,7 +94,7 @@ def win(pos_array):
 ''' logic-mapping'''
 
 while not win(my_mouse.mouse_pos):
-    #time.sleep(1)
+    time.sleep(0.02)
     cx, cy = my_mouse.mouse_pos[0], my_mouse.mouse_pos[1]
     ff.update_grid(my_mouse.mouse_pos, check_sensors())
     next_move = ff.get_next_cell(my_mouse.mouse_pos)
@@ -107,9 +107,12 @@ my_mouse.reset()
 
 '''logic-move! HAHAHAHHAHAHAHAHAHHAHA'''
 while not win(my_mouse.mouse_pos):
-    next_move = ff.get_next_cell(my_mouse.mouse_pos)
+    next_move, is_ex = ff.get_next_cell_actual(my_mouse.mouse_pos)
+    if is_ex:
+        my_mouse.move_actual(next_move)
+    else:
+        ff.update_grid(my_mouse.mouse_pos, check_sensors())
     print(next_move)
-    my_mouse.move_actual(next_move)
 
 
 

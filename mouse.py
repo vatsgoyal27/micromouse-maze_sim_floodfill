@@ -10,7 +10,7 @@ class Mouse():
         self.mouse.setheading(90)
         #self.mouse.shapesize(0.5, 0.5)
         self.mouse.hideturtle()
-        self.mouse.width(3)
+        self.mouse.width(6)
         self.mouse.penup()
         self.mouse.goto(30, 30)
         self.mouse.showturtle()

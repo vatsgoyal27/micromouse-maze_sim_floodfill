@@ -20,90 +20,107 @@ def remove_wall_bidirectional(gridp, row, col, direction):
         if 0 <= nr < 18 and 0 <= nc < 18:
             remove_wall(gridp, nr, nc, opposite)
 
-# --- MAIN PATH (ZIG-ZAG from bottom-left to top-right) ---
-path = [(17, 0)]
-# Vertical up
-for r in range(16, 10, -1):
-    path.append((r, 0))
-# Right
-for c in range(1, 5):
-    path.append((10, c))
-# Up
-for r in range(9, 6, -1):
-    path.append((r, 4))
-# Right
-for c in range(5, 10):
-    path.append((6, c))
-# Up
-for r in range(5, 2, -1):
-    path.append((r, 9))
-# Right
-for c in range(10, 14):
-    path.append((2, c))
-# Up
-for r in range(1, -1, -1):
-    path.append((r, 13))
-# Right to (0,17)
-for c in range(14, 18):
-    path.append((0, c))
+def add_wall_bidirectional(grid, row, col, direction):
+    # Define direction deltas and opposites
+    delta = {
+        'n': (-1, 0, 's'),
+        's': (1, 0, 'n'),
+        'e': (0, 1, 'w'),
+        'w': (0, -1, 'e')
+    }
 
-for i in range(len(path) - 1):
-    r1, c1 = path[i]
-    r2, c2 = path[i + 1]
-    if r2 < r1:
-        remove_wall_bidirectional(grid, r1, c1, 'n')
-    elif r2 > r1:
-        remove_wall_bidirectional(grid, r1, c1, 's')
-    elif c2 < c1:
-        remove_wall_bidirectional(grid, r1, c1, 'w')
-    elif c2 > c1:
-        remove_wall_bidirectional(grid, r1, c1, 'e')
+    if direction in delta:
+        dr, dc, opposite = delta[direction]
+        nr, nc = row + dr, col + dc
 
-    #fixing chat gpts map generation
-    remove_wall_bidirectional(grid, 10, 0, 'e')
-    remove_wall_bidirectional(grid, 6, 4, 'e')
-    remove_wall_bidirectional(grid, 3, 11, 'n')
+        # Add wall to the current cell
+        x, y, walls = grid[row][col]
+        if direction not in walls:
+            walls += direction
+            grid[row][col] = (x, y, walls)
 
-# --- FALSE PATHS / DEAD ENDS ---
+        # Add wall to the neighboring cell
+        if 0 <= nr < 18 and 0 <= nc < 18:
+            x2, y2, neighbor_walls = grid[nr][nc]
+            if opposite not in neighbor_walls:
+                neighbor_walls += opposite
+                grid[nr][nc] = (x2, y2, neighbor_walls)
 
-# Random dead-end vertical shaft from (13, 2)
-for r in range(13, 10, -1):
-    remove_wall_bidirectional(grid, r, 2, 'n')
 
-# False horizontal from (6, 11) to (6, 15)
-for c in range(11, 16):
-    remove_wall_bidirectional(grid, 6, c, 'e')
+# --------------------------
+# 🔁 BUILD CONCENTRIC LOOPS
+# --------------------------
+layers = [
+    (1, 16),  # outermost loop: rows 1-16, cols 1-16
+    (3, 14),
+    (5, 12),
+    (6, 11),
+    (7, 10)   # innermost loop
+]
 
-# False vertical from (9, 5) to (5, 5)
-for r in range(9, 5, -1):
-    remove_wall_bidirectional(grid, r, 5, 'n')
+for layer in layers:
+    r1, r2 = layer[0], layer[1]
+    for c in range(r1, r2):   # top
+        remove_wall_bidirectional(grid, r1, c, 'e')
+    for r in range(r1, r2):   # right
+        remove_wall_bidirectional(grid, r, r2, 's')
+    for c in range(r2, r1, -1):  # bottom
+        remove_wall_bidirectional(grid, r2, c, 'w')
+    for r in range(r2, r1, -1):  # left
+        remove_wall_bidirectional(grid, r, r1, 'n')
 
-# Backtracking loop near start
-remove_wall_bidirectional(grid, 17, 0, 'e')
-remove_wall_bidirectional(grid, 17, 1, 'e')
+# --------------------------
+# ❌ FAKE PATHS + DECOYS
+# --------------------------
+
+# Fake entry to layer 1
+remove_wall_bidirectional(grid, 17, 1, 'n')
+remove_wall_bidirectional(grid, 16, 1, 'n')
+remove_wall_bidirectional(grid, 15, 1, 'e')
+remove_wall_bidirectional(grid, 15, 2, 'e')
+remove_wall_bidirectional(grid, 15, 3, 'n')
+# Dead end
+
+# Fork inside 2nd loop
+remove_wall_bidirectional(grid, 4, 13, 's')
+remove_wall_bidirectional(grid, 5, 13, 's')
+remove_wall_bidirectional(grid, 6, 13, 'e')
+remove_wall_bidirectional(grid, 6, 14, 'e')
+# End
+
+# Loop in middle
+remove_wall_bidirectional(grid, 10, 8, 'w')
+remove_wall_bidirectional(grid, 10, 7, 'n')
+remove_wall_bidirectional(grid, 9, 7, 'e')
+remove_wall_bidirectional(grid, 9, 8, 'n')
+remove_wall_bidirectional(grid, 9, 8, 'e')
+
+# Spiral trap
+remove_wall_bidirectional(grid, 1, 14, 's')
+remove_wall_bidirectional(grid, 2, 14, 'w')
+remove_wall_bidirectional(grid, 2, 13, 's')
+remove_wall_bidirectional(grid, 3, 13, 'w')
+remove_wall_bidirectional(grid, 3, 12, 'n')
+
+# Zigzag fork
+remove_wall_bidirectional(grid, 11, 2, 'e')
+remove_wall_bidirectional(grid, 11, 3, 'n')
+remove_wall_bidirectional(grid, 10, 3, 'e')
+remove_wall_bidirectional(grid, 10, 4, 'n')
+
+# Extra fork near goal (deceptive)
+remove_wall_bidirectional(grid, 7, 10, 'e')
+remove_wall_bidirectional(grid, 7, 11, 'n')
+remove_wall_bidirectional(grid, 6, 11, 'e')
+remove_wall_bidirectional(grid, 6, 12, 's')
+
+# Done!
+
+remove_wall_bidirectional(grid, 17, 0, 'n')
+remove_wall_bidirectional(grid, 17, 1, 'n')
 remove_wall_bidirectional(grid, 17, 2, 'n')
-remove_wall_bidirectional(grid, 16, 2, 'w')
-remove_wall_bidirectional(grid, 16, 1, 's')
-
-# Trap path from (2, 14) down to (5, 14)
-for r in range(2, 6):
-    remove_wall_bidirectional(grid, r, 14, 's')
-
-# Small loop near (7, 7)
-remove_wall_bidirectional(grid, 7, 7, 'e')
-remove_wall_bidirectional(grid, 7, 8, 's')
-remove_wall_bidirectional(grid, 8, 8, 'w')
+remove_wall_bidirectional(grid, 17, 0, 'e')
+remove_wall_bidirectional(grid, 6, 12, 'e')
+remove_wall_bidirectional(grid, 8, 8, 'e')
 remove_wall_bidirectional(grid, 8, 7, 'n')
-
-# Small false fork from (3, 9)
-remove_wall_bidirectional(grid, 3, 9, 'e')
-remove_wall_bidirectional(grid, 3, 10, 'e')
-
-# Complex false zig-zag from (15, 5)
-remove_wall_bidirectional(grid, 15, 5, 'n')
-remove_wall_bidirectional(grid, 14, 5, 'e')
-remove_wall_bidirectional(grid, 14, 6, 'n')
-remove_wall_bidirectional(grid, 13, 6, 'e')
-remove_wall_bidirectional(grid, 13, 7, 's')
-
-# Done
+remove_wall_bidirectional(grid, 9, 9, 'n')
