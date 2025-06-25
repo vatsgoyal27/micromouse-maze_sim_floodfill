@@ -38,7 +38,7 @@ micromouse-maze_sim_floodfill/
 2. Clone this repository:
 
    ```bash
-   git clone https://github.com/your-username/micromouse-maze_sim_floodfill.git
+   git clone https://github.com/vatsgoyal27/micromouse-maze_sim_floodfill.git
    cd micromouse-maze_sim_floodfill
    ```
 
