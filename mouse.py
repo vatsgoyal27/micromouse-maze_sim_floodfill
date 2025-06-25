@@ -4,14 +4,13 @@ class Mouse():
     def __init__(self):
         self.create_mouse()
         self.mouse_pos = [17,0]
+        self.mouse.width(1)
 
     def create_mouse(self):
         self.mouse = Turtle(shape='square')
         self.mouse.setheading(90)
         #self.mouse.shapesize(0.5, 0.5)
         self.mouse.hideturtle()
-        self.mouse.width(6)
-        self.mouse.penup()
         self.mouse.goto(30, 30)
         self.mouse.showturtle()
         self.mouse.speed(6)
@@ -113,11 +112,14 @@ class Mouse():
     def reset(self):
         self.mouse.hideturtle()
         self.mouse.speed(0)
+        self.mouse.penup()
         self.mouse.goto(30, 30)
         self.mouse_pos = [17, 0]
         self.mouse.showturtle()
         self.mouse.speed(6)
         self.mouse.setheading(90)
+        self.mouse.pencolor('blue')
+        self.mouse.pendown()
 
     def move_actual(self, to):
         nx, ny = to[0], to[1]
