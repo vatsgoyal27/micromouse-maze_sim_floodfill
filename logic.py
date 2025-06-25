@@ -55,7 +55,7 @@ class FloodFillMap:
                         if self.cost_map[nr][nc] > current_cost + 1:
                             self.cost_map[nr][nc] = current_cost + 1
                             queue.append((nr, nc))
-        self.print_map()
+        #self.print_map()
 
     def check_done(self, current_pos):
         all_explored = True
@@ -149,7 +149,7 @@ class FloodFillMap:
         }
 
         lowest_cost = current_cost
-        next_cell = (r, c)  # Default: stay in place if no lower neighbor found
+        next_cell = [r, c]  # Default: stay in place if no lower neighbor found
 
         for direction, (dr, dc) in directions.items():
             if direction not in self.grid[r][c][2]:  # No wall in this direction
@@ -160,6 +160,31 @@ class FloodFillMap:
                         lowest_cost = neighbor_cost
                         next_cell = [nr, nc]
         #print(next_cell)
+        return next_cell
+
+    def get_next_cell_backtrack(self, current_pos):
+        r, c = current_pos[0], current_pos[1]
+        current_cost = self.cost_map[r][c]
+
+        directions = {
+            'n': (-1, 0),
+            's': (1, 0),
+            'e': (0, 1),
+            'w': (0, -1)
+        }
+
+        highest_cost = current_cost
+        next_cell = [r, c]  # Default: stay in place if no higher neighbor found
+
+        for direction, (dr, dc) in directions.items():
+            if direction not in self.grid[r][c][2]:  # No wall in this direction
+                nr, nc = r + dr, c + dc
+                if 0 <= nr < 18 and 0 <= nc < 18:
+                    neighbor_cost = self.cost_map[nr][nc]
+                    if neighbor_cost > highest_cost:
+                        highest_cost = neighbor_cost
+                        next_cell = [nr, nc]
+        print(next_cell)
         return next_cell
 
     def get_next_cell_actual(self, current_pos):
@@ -192,19 +217,3 @@ class FloodFillMap:
         for row in self.cost_map:
             print(" ".join(f"{val:3}" for val in row))
         print("--------------------------------------------------")
-
-# def main():
-#     print("Running test floodfill map...")
-#     # Example minimal test grid
-#     fake_grid = [[(x, y, "nesw") for x in range(18)] for y in range(18)]
-#     goal = (0, 17)
-#     ff = FloodFillMap(fake_grid, goal)
-#     ff.update_grid([0, 0], "new")
-#     ff.update_grid([1, 0], "we")
-#     ff.get_next_cell((0, 0))
-#
-#     # ------------------------------
-#     # Entry point
-#     # ------------------------------
-# if __name__ == "__main__":
-#     main()
