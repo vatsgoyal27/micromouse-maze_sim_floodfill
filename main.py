@@ -93,7 +93,7 @@ def win(pos_array):
 
 ''' logic-mapping'''
 
-while not ff.check_done():
+while not ff.check_done(my_mouse.mouse_pos):
     time.sleep(0.01)
     cx, cy = my_mouse.mouse_pos[0], my_mouse.mouse_pos[1]
     ff.update_grid(my_mouse.mouse_pos, check_sensors())

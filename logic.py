@@ -57,10 +57,10 @@ class FloodFillMap:
                             queue.append((nr, nc))
         self.print_map()
 
-    def check_done(self):
+    def check_done(self, current_pos):
         all_explored = True
         all_unreachable = True
-
+        xc, yc = current_pos[0], current_pos[1]
         for r in range(18):
             for c in range(18):
                 if not self.explored[r][c]:
@@ -68,7 +68,7 @@ class FloodFillMap:
                     if self.cost_map[r][c] != 255:
                         all_unreachable = False
 
-        return all_explored or all_unreachable
+        return (all_explored or all_unreachable) and (current_pos == [17, 0])
 
     def mark_explored(self, r, c):
         if 0 <= r < 18 and 0 <= c < 18:
