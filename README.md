@@ -70,6 +70,5 @@ micromouse-maze_sim_floodfill/
 ## To-Do 
 
 - Allow user to draw maze manually with clicks
-- Implement BFS pathfinding for initial run to explore all the cells and find shortest path
 
 ---

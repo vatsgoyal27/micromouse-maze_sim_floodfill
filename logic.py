@@ -23,6 +23,7 @@ class FloodFillMap:
         self.cost_map = [[255 for _ in range(18)] for _ in range(18)]
         self.generate_cost_map()
         self.explored = [[False for _ in range(18)] for _ in range(18)]
+        self.path = []
 
 
     def generate_cost_map(self):
@@ -54,7 +55,20 @@ class FloodFillMap:
                         if self.cost_map[nr][nc] > current_cost + 1:
                             self.cost_map[nr][nc] = current_cost + 1
                             queue.append((nr, nc))
-        #self.print_map()
+        self.print_map()
+
+    def check_done(self):
+        all_explored = True
+        all_unreachable = True
+
+        for r in range(18):
+            for c in range(18):
+                if not self.explored[r][c]:
+                    all_explored = False
+                    if self.cost_map[r][c] != 255:
+                        all_unreachable = False
+
+        return all_explored or all_unreachable
 
     def mark_explored(self, r, c):
         if 0 <= r < 18 and 0 <= c < 18:
@@ -62,7 +76,6 @@ class FloodFillMap:
 
     def update_grid(self, cell_pos, walls):
         r, c = cell_pos
-        self.mark_explored(r, c)
         x, y, _ = self.grid[r][c]
         existing_walls = self.grid[r][c][2]
         for w in walls:
@@ -93,6 +106,36 @@ class FloodFillMap:
 
         #print(self.grid)
         self.generate_cost_map()
+
+    def explore(self, current_pos):
+        r, c = current_pos[0], current_pos[1]
+
+        self.mark_explored(r, c)  # Always mark current cell first
+
+        # Check north
+        if r > 0 and 'n' not in self.grid[r][c][2] and not self.explored[r-1][c]:
+            self.path.append([r, c])
+            return [r-1, c]
+        # Check south
+        if r < 17 and 's' not in self.grid[r][c][2] and not self.explored[r+1][c]:
+            self.path.append([r, c])
+            return [r+1, c]
+        # Check east
+        if c < 17 and 'e' not in self.grid[r][c][2] and not self.explored[r][c+1]:
+            self.path.append([r, c])
+            return [r, c+1]
+        # Check west
+        if c > 0 and 'w' not in self.grid[r][c][2] and not self.explored[r][c-1]:
+            self.path.append([r, c])
+            return [r, c-1]
+
+        # Backtrack if all neighbors are explored or blocked
+        if self.path:
+            prev = self.path.pop()
+            return prev
+        else:
+            return [r, c]  # Stay in place if no path to backtrack
+
 
     def get_next_cell(self, current_pos):
         r, c = current_pos[0], current_pos[1]

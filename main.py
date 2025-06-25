@@ -93,25 +93,20 @@ def win(pos_array):
 
 ''' logic-mapping'''
 
-while not win(my_mouse.mouse_pos):
-    time.sleep(0.02)
+while not ff.check_done():
+    time.sleep(0.01)
     cx, cy = my_mouse.mouse_pos[0], my_mouse.mouse_pos[1]
     ff.update_grid(my_mouse.mouse_pos, check_sensors())
-    next_move = ff.get_next_cell(my_mouse.mouse_pos)
-    #print(next_move)
+    next_move = ff.explore(my_mouse.mouse_pos)
     my_mouse.move_actual(next_move)
 
-ff.print_map()
 time.sleep(2)
 my_mouse.reset()
 
 '''logic-move! HAHAHAHHAHAHAHAHAHHAHA'''
 while not win(my_mouse.mouse_pos):
-    next_move, is_ex = ff.get_next_cell_actual(my_mouse.mouse_pos)
-    if is_ex:
-        my_mouse.move_actual(next_move)
-    else:
-        ff.update_grid(my_mouse.mouse_pos, check_sensors())
+    next_move= ff.get_next_cell(my_mouse.mouse_pos)
+    my_mouse.move_actual(next_move)
     print(next_move)
 
 
