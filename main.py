@@ -102,6 +102,7 @@ while not ff.check_done(my_mouse.mouse_pos):
 
 time.sleep(2)
 my_mouse.reset()
+ff.print_map()
 
 '''logic-move! HAHAHAHHAHAHAHAHAHHAHA'''
 while not win(my_mouse.mouse_pos):
