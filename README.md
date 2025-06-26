@@ -2,6 +2,8 @@
 
 A Python-based Micromouse simulator that navigates a virtual maze using the **floodfill algorithm**. Built with the `turtle` module for visual simulation and customizable grid logic for wall-following and dynamic maze solving.
 
+[ Watch Demo Video](res/demo.mp4)
+
 ---
 
 ## Features
