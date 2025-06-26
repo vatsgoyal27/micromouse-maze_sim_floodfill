@@ -1,4 +1,4 @@
-# Micromouse Maze Simulator with Floodfill Pathfinding (WIP)
+# Micromouse Maze Simulator with Floodfill Pathfinding
 
 A Python-based Micromouse simulator that navigates a virtual maze using the **floodfill algorithm**. Built with the `turtle` module for visual simulation and customizable grid logic for wall-following and dynamic maze solving.
 
@@ -66,11 +66,5 @@ micromouse-maze_sim_floodfill/
 - The maze is generated in `maze.py` with a mix of real paths and false paths
 - The mouse maintains internal knowledge and updates its cost map using local wall sensing
 - The visual output updates using Python's turtle module, which may run slow on very large updates (for now, it's great for concept visualizations)
-
----
-
-## To-Do 
-
-- Curve smoothly along the diagonals
 
 ---
