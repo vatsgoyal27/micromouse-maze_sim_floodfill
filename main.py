@@ -98,17 +98,31 @@ while not ff.check_done(my_mouse.mouse_pos):
     cx, cy = my_mouse.mouse_pos[0], my_mouse.mouse_pos[1]
     ff.update_grid(my_mouse.mouse_pos, check_sensors())
     next_move = ff.explore(my_mouse.mouse_pos)
-    my_mouse.move_actual(next_move)
+    my_mouse.move_explore(next_move)
 
 time.sleep(2)
 my_mouse.reset()
 ff.print_map()
+path = ff.get_final_path(my_mouse.mouse_pos)
+print(path)
+path = ff.process_path_1(path)
+print(path)
+path2 = ff.process_path_2(path)
+print(path2)
+
 
 '''logic-move! HAHAHAHHAHAHAHAHAHHAHA'''
-while not win(my_mouse.mouse_pos):
-    next_move= ff.get_next_cell(my_mouse.mouse_pos)
-    my_mouse.move_actual(next_move)
-    print(next_move)
+# while path:
+#     path.pop(0)
+#     while path:
+#         my_mouse.move_dia(path[0])
+
+while path2:
+    my_mouse.move_p_con(path2[0])
+    path2.pop(0)
+
+
+
 
 
 

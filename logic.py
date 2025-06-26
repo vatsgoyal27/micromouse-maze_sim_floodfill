@@ -24,6 +24,7 @@ class FloodFillMap:
         self.generate_cost_map()
         self.explored = [[False for _ in range(18)] for _ in range(18)]
         self.path = []
+        self.final_path = []
 
 
     def generate_cost_map(self):
@@ -137,81 +138,128 @@ class FloodFillMap:
             return [r, c]  # Stay in place if no path to backtrack
 
 
-    def get_next_cell(self, current_pos):
-        r, c = current_pos[0], current_pos[1]
-        current_cost = self.cost_map[r][c]
+    # def get_next_cell(self, current_pos):
+    #     r, c = current_pos[0], current_pos[1]
+    #     current_cost = self.cost_map[r][c]
+    #
+    #     directions = {
+    #         'n': (-1, 0),
+    #         's': (1, 0),
+    #         'e': (0, 1),
+    #         'w': (0, -1)
+    #     }
+    #
+    #     lowest_cost = current_cost
+    #     next_cell = [r, c]  # Default: stay in place if no lower neighbor found
+    #
+    #     for direction, (dr, dc) in directions.items():
+    #         if direction not in self.grid[r][c][2]:  # No wall in this direction
+    #             nr, nc = r + dr, c + dc
+    #             if 0 <= nr < 18 and 0 <= nc < 18:
+    #                 neighbor_cost = self.cost_map[nr][nc]
+    #                 if neighbor_cost < lowest_cost:
+    #                     lowest_cost = neighbor_cost
+    #                     next_cell = [nr, nc]
+    #     #print(next_cell)
+    #     return next_cell
 
-        directions = {
-            'n': (-1, 0),
-            's': (1, 0),
-            'e': (0, 1),
-            'w': (0, -1)
-        }
+    def get_final_path(self, ini_pos):
+        r, c = ini_pos
+        path = [[r, c]]  # Start from initial position
 
-        lowest_cost = current_cost
-        next_cell = [r, c]  # Default: stay in place if no lower neighbor found
+        while [r, c] not in self.goal:
+            current_cost = self.cost_map[r][c]
+            lowest_cost = current_cost
+            next_cell = [r, c]
 
-        for direction, (dr, dc) in directions.items():
-            if direction not in self.grid[r][c][2]:  # No wall in this direction
-                nr, nc = r + dr, c + dc
-                if 0 <= nr < 18 and 0 <= nc < 18:
-                    neighbor_cost = self.cost_map[nr][nc]
-                    if neighbor_cost < lowest_cost:
-                        lowest_cost = neighbor_cost
-                        next_cell = [nr, nc]
-        #print(next_cell)
-        return next_cell
+            for direction, (dr, dc) in {
+                'n': (-1, 0), 's': (1, 0), 'e': (0, 1), 'w': (0, -1)
+            }.items():
+                if direction not in self.grid[r][c][2]:  # No wall
+                    nr, nc = r + dr, c + dc
+                    if 0 <= nr < 18 and 0 <= nc < 18:
+                        if self.cost_map[nr][nc] < lowest_cost:
+                            lowest_cost = self.cost_map[nr][nc]
+                            next_cell = [nr, nc]
 
-    def get_next_cell_backtrack(self, current_pos):
-        r, c = current_pos[0], current_pos[1]
-        current_cost = self.cost_map[r][c]
+            if next_cell == [r, c]:  # No progress, stuck
+                break
 
-        directions = {
-            'n': (-1, 0),
-            's': (1, 0),
-            'e': (0, 1),
-            'w': (0, -1)
-        }
+            path.append(next_cell)
+            r, c = next_cell
 
-        highest_cost = current_cost
-        next_cell = [r, c]  # Default: stay in place if no higher neighbor found
+        return path
 
-        for direction, (dr, dc) in directions.items():
-            if direction not in self.grid[r][c][2]:  # No wall in this direction
-                nr, nc = r + dr, c + dc
-                if 0 <= nr < 18 and 0 <= nc < 18:
-                    neighbor_cost = self.cost_map[nr][nc]
-                    if neighbor_cost > highest_cost:
-                        highest_cost = neighbor_cost
-                        next_cell = [nr, nc]
-        print(next_cell)
-        return next_cell
+    def process_path_1(self, path):
+        if len(path) < 3:
+            return path[:]
 
-    def get_next_cell_actual(self, current_pos):
-        r, c = current_pos[0], current_pos[1]
-        current_cost = self.cost_map[r][c]
+        new_path = [path[0]]
 
-        directions = {
-            'n': (-1, 0),
-            's': (1, 0),
-            'e': (0, 1),
-            'w': (0, -1)
-        }
+        i = 0
+        while i < len(path) - 2:
+            a = path[i]  # start
+            b = path[i + 1]  # middle (possible L-turn)
+            c = path[i + 2]  # end
 
-        lowest_cost = current_cost
-        next_cell = [r, c]  # Default to current cell
+            # Check if b is an L-turn vertex:
+            # a→b and b→c are perpendicular
+            dx1, dy1 = b[0] - a[0], b[1] - a[1]
+            dx2, dy2 = c[0] - b[0], c[1] - b[1]
 
-        for direction, (dr, dc) in directions.items():
-            if direction not in self.grid[r][c][2]:  # No wall in this direction
-                nr, nc = r + dr, c + dc
-                if 0 <= nr < 18 and 0 <= nc < 18:
-                    neighbor_cost = self.cost_map[nr][nc]
-                    if neighbor_cost < lowest_cost:
-                        lowest_cost = neighbor_cost
-                        next_cell = [nr, nc]
+            # if directions form 90 degrees (dot product == 0)
+            if dx1 * dx2 + dy1 * dy2 == 0:
+                # skip the middle vertex (b)
+                new_path.append(c)
+                i += 2  # skip over b
+            else:
+                new_path.append(b)
+                i += 1
 
-        is_explored = self.explored[r][c]  # Status of current cell
-        return next_cell, is_explored
+        # Add last point if missed
+        if new_path[-1] != path[-1]:
+            new_path.append(path[-1])
+
+        return new_path
+
+    def process_path_2(self, path):
+        processed = []
+        if len(path) < 2:
+            return path
+
+        def get_heading(dxx, dyy):
+            if dxx == -1 and dyy == 0: return 90
+            if dxx == -1 and dyy == 1: return 45
+            if dxx == 0 and dyy == 1: return 0
+            if dxx == 1 and dyy == 1: return 315
+            if dxx == 1 and dyy == 0: return 270
+            if dxx == 1 and dyy == -1: return 225
+            if dxx == 0 and dyy == -1: return 180
+            if dxx == -1 and dyy == -1: return 135
+            return None
+
+        i = 0
+        while i < len(path) - 1:
+            start = path[i]
+            dxx = path[i + 1][0] - start[0]
+            dyy = path[i + 1][1] - start[1]
+            heading = get_heading(dxx, dyy)
+            steps = 1
+            j = i + 1
+
+            while j < len(path) - 1:
+                next_dx = path[j + 1][0] - path[j][0]
+                next_dy = path[j + 1][1] - path[j][1]
+                if get_heading(next_dx, next_dy) == heading:
+                    steps += 1
+                    j += 1
+                else:
+                    break
+
+            processed.append((start, heading, steps))
+            i = j
+
+        return processed
 
     def print_map(self):
         for row in self.cost_map:
